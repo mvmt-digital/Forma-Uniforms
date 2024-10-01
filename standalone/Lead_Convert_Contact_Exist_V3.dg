@@ -1,0 +1,358 @@
+leadData = zoho.crm.getRecordById("Leads",leadid);
+// *********** GET TAGS FROM LEAD START ************ // 
+tags = leadData.get("Tag");
+tagsAvailable = true;
+tg = list();
+strMessage = "";
+
+for each  tag in tags
+{
+	info tag;
+	mzp = Map();
+	mzp.put("name",tag.get("name"));
+	tg.add(mzp);
+	tagsAvailable = true;
+}
+mzp = Map();
+mzp.put("name","Existing Contact");
+tg.add(mzp);
+newTagMap = Map();
+newTagMap.put("tags",tg);
+// *********** GET TAGS FROM LEAD END************ // 
+//
+// ************* IF PAYABLE CONTACT IS NOT EXIST CREATE AND GET CONTACT ID START ************* //
+// ************* IF PAYABLE CONTACT IS NOT EXIST CREATE AND GET CONTACT ID END ************* //
+//
+// ************* CONTACT MAP START ************* //
+if(contact != "" && contact != null || account != "" && account != null)
+{
+	values_map = Map();
+	values_map.put("overwrite",true);
+	if(account != "" && account != null)
+	{
+		accountData = zoho.crm.getRecordById("Accounts",account);
+		values_map.put("Accounts",account);
+	}
+	if(contact != "" && contact != null)
+	{
+		contactData = zoho.crm.getRecordById("Contacts",contact);
+		values_map.put("Contacts",contact);
+	}
+	convert = zoho.crm.convertLead(leadid,values_map);
+	SecAccounts = convert.get("Accounts");
+	SecContacts = convert.get("Contacts");
+	if(contact == "" || contact == null)
+	{
+		contactData = zoho.crm.getRecordById("Contacts",SecContacts);
+		if(payableContactID == "" || payableContactID == null)
+		{
+			contactFirstName = leadData.get("Account_Payable_Contact_First_Name");
+			contactLastName = leadData.get("Account_Payable_Contact_Last_Name");
+			contactEmail = leadData.get("Account_Payable_Contact_Email");
+			if(contactFirstName != "" && contactLastName != "" && contactEmail != "")
+			{
+				keysList = contactData.keys();
+				mapContact = Map();
+				for each  key in keysList
+				{
+					if(key != "id" && key != "Mobile")
+					{
+						mapContact.put(key,contactData.get(key));
+					}
+				}
+				mapContact.put("First_Name",contactFirstName);
+				mapContact.put("Last_Name",contactLastName);
+				mapContact.put("Email",contactEmail);
+				if(account != "" && account != null)
+				{
+					mapContact.put("Account_Name",account);
+				}
+				mapContact.put("Statut_du_Contact","NOUVEAU CONTACT");
+				payableContact = zoho.crm.createRecord("Contacts",mapContact);
+				payableContactID = payableContact.get("id");
+			}
+		}
+	}
+	contact = SecContacts;
+	contact_Map = Map();
+	oldString = "";
+	if(SecAccounts != null && SecAccounts != "")
+	{
+		contact_Map.put("Account_Name",SecAccounts);
+	}
+	if(leadData.get("Email") != "" && leadData.get("Email") != null && leadData.get("Email") != contactData.get("Email"))
+	{
+		contact_Map.put("Email",leadData.get("Email"));
+		oldString = oldString + "Email is changed from  " + contactData.get("Email") + " to " + leadData.get("Email") + "\n";
+	}
+	if(leadData.get("Mobile") != "" && leadData.get("Mobile") != null && leadData.get("Mobile") != contactData.get("Mobile"))
+	{
+		contact_Map.put("Mobile",leadData.get("Mobile"));
+		oldString = oldString + "Mobile is changed from  " + contactData.get("Mobile") + " to " + leadData.get("Mobile") + "\n";
+	}
+	if(leadData.get("Designation") != "" && leadData.get("Designation") != null && leadData.get("Designation") != contactData.get("Title"))
+	{
+		contact_Map.put("Title",leadData.get("Designation"));
+		oldString = oldString + "Title is changed from  " + contactData.get("Title") + " to " + leadData.get("Designation") + "\n";
+	}
+	if(leadData.get("Language") != "" && leadData.get("Language") != null && leadData.get("Language") != contactData.get("Language"))
+	{
+		contact_Map.put("Language",leadData.get("Language"));
+		oldString = oldString + "Language is changed from  " + contactData.get("Language") + " to " + leadData.get("Language") + "\n";
+	}
+	if(leadData.get("Last_Name") != "" && leadData.get("Last_Name") != null && leadData.get("Last_Name") != contactData.get("Last_Name"))
+	{
+		contact_Map.put("Last_Name",leadData.get("Last_Name"));
+		oldString = oldString + "Last Name is changed from  " + contactData.get("Last_Name") + " to " + leadData.get("Last_Name") + "\n";
+	}
+	if(leadData.get("Lead_Source") != "" && leadData.get("Lead_Source") != null && leadData.get("Lead_Source") != contactData.get("Lead_Source"))
+	{
+		contact_Map.put("Lead_Source",leadData.get("Lead_Source"));
+		oldString = oldString + "Lead Source is changed from  " + contactData.get("Lead_Source") + " to " + leadData.get("Lead_Source") + "\n";
+	}
+	if(leadData.get("Lead_Type") != "" && leadData.get("Lead_Type") != null && leadData.get("Lead_Type") != contactData.get("Lead_Type"))
+	{
+		contact_Map.put("Lead_Type",leadData.get("Lead_Type"));
+		oldString = oldString + "Lead Type is changed from  " + contactData.get("Lead_Type") + " to " + leadData.get("Lead_Type") + "\n";
+	}
+	if(leadData.get("First_Name") != "" && leadData.get("First_Name") != null && leadData.get("First_Name") != contactData.get("First_Name"))
+	{
+		contact_Map.put("First_Name",leadData.get("First_Name"));
+		oldString = oldString + "First Name is changed from  " + contactData.get("First_Name") + " to " + leadData.get("First_Name") + "\n";
+	}
+	if(leadData.get("Phone") != "" && leadData.get("Phone") != null && leadData.get("Phone") != contactData.get("Phone"))
+	{
+		contact_Map.put("Phone",leadData.get("Phone"));
+		oldString = oldString + "Phone is changed from  " + contactData.get("Phone") + " to " + leadData.get("Phone") + "\n";
+	}
+	if(leadData.get("Email_status") != "" && leadData.get("Email_status") != null && leadData.get("Email_status") != contactData.get("Email_status"))
+	{
+		contact_Map.put("Email_status",leadData.get("Email_status"));
+		oldString = oldString + "Email status is changed from  " + contactData.get("Email_status") + " to " + leadData.get("Email_status") + "\n";
+	}
+	if(leadData.get("IMPORTANT_NOTES") != "" && leadData.get("IMPORTANT_NOTES") != null && leadData.get("IMPORTANT_NOTES") != contactData.get("IMPORTANT_NOTES"))
+	{
+		contact_Map.put("IMPORTANT_NOTES",leadData.get("IMPORTANT_NOTES"));
+		oldString = oldString + "IMPORTANT NOTES is changed from  " + contactData.get("IMPORTANT_NOTES") + " to " + leadData.get("IMPORTANT_NOTES") + "\n";
+	}
+	if(leadData.get("Industry_type") != "" && leadData.get("Industry_type") != null && leadData.get("Industry_type") != contactData.get("Industry_type"))
+	{
+		contact_Map.put("Industry_type",leadData.get("Industry_type"));
+		oldString = oldString + "Industry type is changed from  " + contactData.get("Industry_type") + " to " + leadData.get("Industry_type") + "\n";
+	}
+	if(leadData.get("City") != "" && leadData.get("City") != null && leadData.get("City") != contactData.get("Mailing_City"))
+	{
+		contact_Map.put("Mailing_City",leadData.get("City"));
+		oldString = oldString + "Mailing City is changed from  " + contactData.get("Mailing_City") + " to " + leadData.get("City") + "\n";
+	}
+	// Jiresh 
+	if(leadData.get("Secondary_Email") != "" && leadData.get("Secondary_Email") != null && leadData.get("Secondary_Email") != contactData.get("Secondary_Email"))
+	{
+		contact_Map.put("Secondary_Email",leadData.get("Secondary_Email"));
+		oldString = oldString + "Secondary Email is changed from  " + contactData.get("Secondary_Email") + " to " + leadData.get("Secondary_Email") + "\n";
+	}
+	if(leadData.get("Street") != "" && leadData.get("Street") != null && leadData.get("Street") != contactData.get("Mailing_Street"))
+	{
+		contact_Map.put("Mailing_Street",leadData.get("Street"));
+		oldString = oldString + "Mailing Street is changed from  " + contactData.get("Mailing_Street") + " to " + leadData.get("Street") + "\n";
+	}
+	if(leadData.get("Select_State") != "" && leadData.get("Select_State") != null && leadData.get("Select_State") != contactData.get("Select_State"))
+	{
+		contact_Map.put("Select_State",leadData.get("Select_State"));
+		oldString = oldString + "State is changed from  " + contactData.get("Select_State") + " to " + leadData.get("Select_State") + "\n";
+	}
+	if(leadData.get("Select_Country") != "" && leadData.get("Select_Country") != null && leadData.get("Select_Country") != contactData.get("Select_Country"))
+	{
+		contact_Map.put("Select_Country",leadData.get("Select_Country"));
+		oldString = oldString + "Country is changed from  " + contactData.get("Select_Country") + " to " + leadData.get("Select_Country") + "\n";
+	}
+	if(leadData.get("Zip_Code") != "" && leadData.get("Zip_Code") != null && leadData.get("Zip_Code") != contactData.get("Mailing_Zip"))
+	{
+		contact_Map.put("Mailing_Zip",leadData.get("Zip_Code"));
+		oldString = oldString + "Mailing Zip is changed from  " + contactData.get("Mailing_Zip") + " to " + leadData.get("Zip_Code") + "\n";
+	}
+	if(leadData.get("Different_Shipping_Address") != contactData.get("Different_Shipping_Address"))
+	{
+		contact_Map.put("Different_Shipping_Address",leadData.get("Different_Shipping_Address"));
+		oldString = oldString + "Different Shipping Address is changed from  " + contactData.get("Different_Shipping_Address") + " to " + leadData.get("Different_Shipping_Address") + "\n";
+	}
+	if(leadData.get("Shipping_Address") != "" && leadData.get("Shipping_Address") != null && leadData.get("Shipping_Address") != contactData.get("Shipping_Address"))
+	{
+		contact_Map.put("Shipping_Address",leadData.get("Shipping_Address"));
+		oldString = oldString + "Shipping Address is changed from  " + contactData.get("Shipping_Address") + " to " + leadData.get("Shipping_Address") + "\n";
+	}
+	if(leadData.get("Shipping_City") != "" && leadData.get("Shipping_City") != null && leadData.get("Shipping_City") != contactData.get("Shipping_City"))
+	{
+		contact_Map.put("Shipping_City",leadData.get("Shipping_City"));
+		oldString = oldString + "Shipping City is changed from  " + contactData.get("Shipping_City") + " to " + leadData.get("Shipping_City") + "\n";
+	}
+	if(leadData.get("Shipping_Zip_Postal_code") != "" && leadData.get("Shipping_Zip_Postal_code") != null && leadData.get("Shipping_Zip_Postal_code") != contactData.get("Shipping_Zip_Postal_code"))
+	{
+		contact_Map.put("Shipping_Zip_Postal_code",leadData.get("Shipping_Zip_Postal_code"));
+		oldString = oldString + "Shipping Zip Postal code is changed from  " + contactData.get("Shipping_Zip_Postal_code") + " to " + leadData.get("Shipping_Zip_Postal_code") + "\n";
+	}
+	if(leadData.get("Select_Shipping_Country") != "" && leadData.get("Select_Shipping_Country") != null && leadData.get("Select_Shipping_Country") != contactData.get("Select_Shipping_Country"))
+	{
+		contact_Map.put("Select_Shipping_Country",leadData.get("Select_Shipping_Country"));
+		oldString = oldString + "Select Shipping Country is changed from  " + contactData.get("Select_Shipping_Country") + " to " + leadData.get("Select_Shipping_Country") + "\n";
+	}
+	if(leadData.get("Select_Shipping_State") != "" && leadData.get("Select_Shipping_State") != null && leadData.get("Select_Shipping_State") != contactData.get("Select_Shipping_State"))
+	{
+		contact_Map.put("Select_Shipping_State",leadData.get("Select_Shipping_State"));
+		oldString = oldString + "Select Shipping State is changed from  " + contactData.get("Select_Shipping_State") + " to " + leadData.get("Select_Shipping_State") + "\n";
+	}
+	if(leadData.get("Description") != "" && leadData.get("Description") != null && leadData.get("Description") != contactData.get("Description"))
+	{
+		contact_Map.put("Description",leadData.get("Description"));
+		oldString = oldString + "Description is changed from  " + contactData.get("Description") + " to " + leadData.get("Description") + "\n";
+	}
+	// Jiresh
+	zoho.crm.updateRecord("Contacts",contact,contact_Map);
+	if(oldString != "")
+	{
+		notemap = Map();
+		notemap.put("Parent_Id",contact);
+		notemap.put("Note_Content",oldString);
+		notemap.put("Note_Title","Existing Contact Report");
+		notemap.put("se_module","Contacts");
+		notecreate = zoho.crm.createRecord("Notes",notemap);
+	}
+	// ************* ACCOUNT MAP START *********** //
+	if(account != "" && account != null)
+	{
+		oldAccountString = "";
+		account_map = Map();
+		if(company != null && company != "" && accountData.get("Account_Name") != company)
+		{
+			account_map.put("Account_Name",company);
+			oldAccountString = oldAccountString + "Company Name is changed from  " + accountData.get("Account_Name") + " to " + company + "\n";
+		}
+		if(leadData.get("IMPORTANT_NOTES") != "" && leadData.get("IMPORTANT_NOTES") != null && leadData.get("IMPORTANT_NOTES") != accountData.get("IMPORTANT_NOTE"))
+		{
+			account_map.put("IMPORTANT_NOTES",leadData.get("IMPORTANT_NOTE"));
+			oldAccountString = oldAccountString + "IMPORTANT NOTES is changed from  " + accountData.get("IMPORTANT_NOTES") + " to " + leadData.get("IMPORTANT_NOTES") + "\n";
+		}
+		if(leadData.get("Industry_type") != "" && leadData.get("Industry_type") != null && leadData.get("Industry_type") != accountData.get("Industry_type"))
+		{
+			account_map.put("Industry_type",leadData.get("Industry_type"));
+			oldAccountString = oldAccountString + "Industry type is changed from  " + accountData.get("Industry_type") + " to " + leadData.get("Industry_type") + "\n";
+		}
+		if(leadData.get("Industry") != "" && leadData.get("Industry") != null && leadData.get("Industry") != accountData.get("Industry"))
+		{
+			account_map.put("Industry",leadData.get("Industry"));
+			oldAccountString = oldAccountString + "Industry is changed from  " + accountData.get("Industry") + " to " + leadData.get("Industry") + "\n";
+		}
+		if(leadData.get("Company_s_Legal_Name") != "" && leadData.get("Company_s_Legal_Name") != null && leadData.get("Company_s_Legal_Name") != accountData.get("Company_s_Legal_Name"))
+		{
+			account_map.put("Company_s_Legal_Name",leadData.get("Company_s_Legal_Name"));
+			oldAccountString = oldAccountString + "Company Legal Name is changed from  " + accountData.get("Company_s_Legal_Name") + " to " + leadData.get("Company_s_Legal_Name") + "\n";
+		}
+		if(leadData.get("Account_Payable_Contact_Email") != "" && leadData.get("Account_Payable_Contact_Email") != null && leadData.get("Account_Payable_Contact_Email") != accountData.get("Account_Payable_Contact_Email"))
+		{
+			account_map.put("Account_Payable_Contact_Email",leadData.get("Account_Payable_Contact_Email"));
+			oldAccountString = oldAccountString + "Account Payable Contact Email is changed from  " + accountData.get("Account_Payable_Contact_Email") + " to " + leadData.get("Account_Payable_Contact_Email") + "\n";
+		}
+		if(leadData.get("Code_Client") != "" && leadData.get("Code_Client") != null && leadData.get("Code_Client") != accountData.get("code_client"))
+		{
+			account_map.put("code_client",leadData.get("Code_Client"));
+			oldAccountString = oldAccountString + "Code Client is changed from  " + accountData.get("code_client") + " to " + leadData.get("Code_Client") + "\n";
+		}
+		if(leadData.get("Account_Statement_Email") != "" && leadData.get("Account_Statement_Email") != null && leadData.get("Account_Statement_Email") != accountData.get("Account_Statement_Email"))
+		{
+			account_map.put("Account_Statement_Email",leadData.get("Account_Statement_Email"));
+			oldAccountString = oldAccountString + "Account Statement Email	 is changed from  " + accountData.get("Account_Statement_Email") + " to " + leadData.get("Account_Statement_Email") + "\n";
+		}
+		if(leadData.get("Street") != "" && leadData.get("Street") != null && leadData.get("Street") != accountData.get("Billing_Street"))
+		{
+			account_map.put("Billing_Street",leadData.get("Street"));
+			oldAccountString = oldAccountString + "Street is changed from  " + accountData.get("Billing_Street") + " to " + leadData.get("Street") + "\n";
+		}
+		if(leadData.get("City") != "" && leadData.get("City") != null && leadData.get("City") != accountData.get("Billing_City"))
+		{
+			account_map.put("Billing_City",leadData.get("City"));
+			oldAccountString = oldAccountString + "City is changed from  " + accountData.get("Billing_City") + " to " + leadData.get("City") + "\n";
+		}
+		if(leadData.get("Zip_Code") != "" && leadData.get("Zip_Code") != null && leadData.get("Zip_Code") != accountData.get("Billing_Code"))
+		{
+			account_map.put("Billing_Code",leadData.get("Zip_Code"));
+			oldAccountString = oldAccountString + "Zip Code is changed from  " + accountData.get("Billing_Code") + " to " + leadData.get("Zip_Code") + "\n";
+		}
+		if(leadData.get("Select_Country") != "" && leadData.get("Select_Country") != null && leadData.get("Select_Country") != accountData.get("Select_Country"))
+		{
+			account_map.put("Select_Country",leadData.get("Select_Country"));
+			oldAccountString = oldAccountString + "Select Country is changed from  " + accountData.get("Select_Country") + " to " + leadData.get("Select_Country") + "\n";
+		}
+		if(leadData.get("Select_Country") != "" && leadData.get("Select_Country") != null && leadData.get("Select_Country") != accountData.get("Select_Country"))
+		{
+			account_map.put("Select_Country",leadData.get("Select_Country"));
+			oldAccountString = oldAccountString + "Select Country is changed from  " + accountData.get("Select_Country") + " to " + leadData.get("Select_Country") + "\n";
+		}
+		if(leadData.get("Shipping_Address") != "" && leadData.get("Shipping_Address") != null && leadData.get("Shipping_Address") != accountData.get("Shipping_Street"))
+		{
+			account_map.put("Shipping_Street",leadData.get("Shipping_Address"));
+			oldAccountString = oldAccountString + "Shipping Street is changed from  " + accountData.get("Shipping_Street") + " to " + leadData.get("Shipping_Address") + "\n";
+		}
+		if(leadData.get("Shipping_City") != "" && leadData.get("Shipping_City") != null && leadData.get("Shipping_City") != accountData.get("Shipping_City"))
+		{
+			account_map.put("Shipping_City",leadData.get("Shipping_City"));
+			oldAccountString = oldAccountString + "Shipping City is changed from  " + accountData.get("Shipping_City") + " to " + leadData.get("Shipping_City") + "\n";
+		}
+		if(leadData.get("Shipping_Zip_Postal_code") != "" && leadData.get("Shipping_Zip_Postal_code") != null && leadData.get("Shipping_Zip_Postal_code") != accountData.get("Shipping_Code"))
+		{
+			account_map.put("Shipping_Code",leadData.get("Shipping_Zip_Postal_code"));
+			oldAccountString = oldAccountString + "Shipping Code is changed from  " + accountData.get("Shipping_Code") + " to " + leadData.get("Shipping_Zip_Postal_code") + "\n";
+		}
+		if(leadData.get("Select_Shipping_Country") != "" && leadData.get("Select_Shipping_Country") != null && leadData.get("Select_Shipping_Country") != accountData.get("Select_Shipping_Country"))
+		{
+			account_map.put("Select_Shipping_Country",leadData.get("Select_Shipping_Country"));
+			oldAccountString = oldAccountString + "Select Shipping Country	 is changed from  " + accountData.get("Select_Shipping_Country") + " to " + leadData.get("Select_Shipping_Country") + "\n";
+		}
+		if(leadData.get("Select_Shipping_State") != "" && leadData.get("Select_Shipping_State") != null && leadData.get("Select_Shipping_State") != accountData.get("Select_Shipping_State"))
+		{
+			account_map.put("Select_Shipping_State",leadData.get("Select_Shipping_State"));
+			oldAccountString = oldAccountString + "Select Shipping State	 is changed from  " + accountData.get("Select_Shipping_State") + " to " + leadData.get("Select_Shipping_State") + "\n";
+		}
+		if(leadData.get("Description") != "" && leadData.get("Description") != null && leadData.get("Description") != accountData.get("Description"))
+		{
+			account_map.put("Description",leadData.get("Description"));
+			oldAccountString = oldAccountString + "Description is changed from  " + accountData.get("Description") + " to " + leadData.get("Description") + "\n";
+		}
+		if(payableContactID != null && payableContactID != "")
+		{
+			account_map.put("Account_Payable_Contact",payableContactID);
+		}
+		zoho.crm.updateRecord("Accounts",account,account_map);
+		if(oldAccountString != "")
+		{
+			notemap = Map();
+			notemap.put("Parent_Id",account);
+			notemap.put("Note_Content",oldAccountString);
+			notemap.put("Note_Title","Existing Account Report");
+			notemap.put("se_module","Accounts");
+			notecreate = zoho.crm.createRecord("Notes",notemap);
+		}
+	}
+	if(SecAccounts != "" && SecAccounts != null)
+	{
+		account_map = Map();
+		if(payableContactID != null && payableContactID != "")
+		{
+			account_map.put("Account_Payable_Contact",payableContactID);
+		}
+		zoho.crm.updateRecord("Accounts",SecAccounts,account_map);
+	}
+	// ************* ACCOUNT MAP END ********* //
+	if(tagsAvailable == true && SecContacts != null && SecContacts != "")
+	{
+		respTag = invokeurl
+		[
+			url :"https://www.zohoapis.com/crm/v6/Contacts/" + SecContacts + "/actions/add_tags?"
+			type :POST
+			parameters:newTagMap.toString()
+			connection:"zoho_crm_connection"
+		];
+	}
+}
+// ************* CONTACT MAP END ************* //
+//
+return "";
